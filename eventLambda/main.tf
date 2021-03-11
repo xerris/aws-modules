@@ -20,7 +20,7 @@ resource "aws_lambda_function" "lambda_event" {
     }
   }
 
-  image_uri            = "${data.aws_caller_identity.this.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.env}-oda-ecr-base:latest"
+  image_uri            = var.image
   package_type         = "Image"
 }
 
