@@ -31,13 +31,19 @@ variable "vpc_security_group_ids" {
         default = null
 }
 ///////IAM Variables
-variable "s3_arn_iam_list" {
+variable "s3_readwrite_arn_iam_list" {
+    default = []
+}
+variable "s3_read_arn_iam_list" {
     default = []
 }
 variable "sqs_arn_iam_list" {
     default = []
 }
-variable "dynamodb_arn_iam_list" {
+variable "dynamodb_readwrite_arn_iam_list" {
+    default = []
+}
+variable "dynamodb_read_arn_iam_list" {
     default = []
 }
 variable "secretsmanager_arn_iam_list" {
