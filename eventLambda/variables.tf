@@ -1,5 +1,8 @@
 ////////Base Lambda Variables
 variable "entrypoint" {}
+variable "command" {
+    default = []
+}
 variable "env"{}
 variable "image" {}
 variable "function_name" {}
