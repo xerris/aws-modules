@@ -9,7 +9,8 @@ resource "aws_lambda_function" "lambda_event" {
   role          = aws_iam_role.iam_for_lambda.arn
 
   image_config  {
-      entry_point      = [var.entrypoint]
+      entry_point      = [var.entrypoint],
+      command          = var.command
   }
 
   dynamic "vpc_config" {
