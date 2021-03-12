@@ -93,6 +93,14 @@ data "aws_iam_policy_document" "lambda_logging" {
     ]
     resources = ["arn:aws:logs:*:*:*"]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = ["*"]
+    }
+  }
 }
 resource "aws_iam_policy" "lambda_policy" {
   name   = var.function_name
