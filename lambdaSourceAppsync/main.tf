@@ -1,8 +1,12 @@
 resource "aws_appsync_graphql_api" "foe_api" {
   name = var.name
   schema = var.schema
-  authentication_type = "API_KEY"
-
+  authentication_type = "AMAZON_COGNITO_USER_POOLS"
+  user_pool_config {
+    aws_region     = var.region
+    default_action = "DENY"
+    user_pool_id   = var.cognito_id
+  }
 }
 
 resource "aws_ecr_repository" "ecr_foe" {
