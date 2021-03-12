@@ -13,4 +13,5 @@ variable "resolvers" {
 }
 
 variable "name" {}
+variable "cognito_id" {}
 variable "schema" {}
