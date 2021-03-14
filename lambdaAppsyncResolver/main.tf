@@ -99,7 +99,6 @@ data "aws_iam_policy_document" "lambda_logging" {
       "secretsmanager:GetSecretValue",
     ]
     resources = ["*"]
-    }
   }
 }
 resource "aws_iam_policy" "lambda_policy" {
