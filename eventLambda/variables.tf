@@ -12,6 +12,12 @@ variable "description" {}
 variable "enable_s3_event" {
     default = false
 }
+variable "timeout" {
+    default = 30
+}
+variable "memory_size" {
+    default = 128
+}
 variable "bucket_event_arn" {
      default = null
 }
