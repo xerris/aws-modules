@@ -5,7 +5,8 @@ data "aws_region" "current" {}
 resource "aws_lambda_function" "lambda_event" {
   function_name = var.function_name
   description   = var.description
-  timeout       = 30
+  timeout       = var.timeout
+  memory_size   = var.memory_size
   role          = aws_iam_role.iam_for_lambda.arn
 
   image_config  {
