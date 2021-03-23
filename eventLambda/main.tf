@@ -8,6 +8,7 @@ resource "aws_lambda_function" "lambda_event" {
   timeout       = var.timeout
   memory_size   = var.memory_size
   role          = aws_iam_role.iam_for_lambda.arn
+  tags = var.tags
 
   image_config  {
       command      = [var.entrypoint]
@@ -69,7 +70,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = ["*"]
   }
   dynamic "statement" {
-    for_each = var.s3_readwrite_arn_iam_list 
+    for_each = var.s3_readwrite_arn_iam_list
     content {
         effect = "Allow"
         actions = [
@@ -85,7 +86,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.s3_read_arn_iam_list 
+    for_each = var.s3_read_arn_iam_list
     content {
         effect = "Allow"
         actions = [
@@ -100,7 +101,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.secretsmanager_arn_iam_list 
+    for_each = var.secretsmanager_arn_iam_list
     content {
     effect = "Allow"
     actions = [
@@ -110,7 +111,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.dynamodb_readwrite_arn_iam_list 
+    for_each = var.dynamodb_readwrite_arn_iam_list
     content {
     effect = "Allow"
     actions = [
@@ -125,7 +126,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
     dynamic "statement" {
-    for_each = var.dynamodb_read_arn_iam_list 
+    for_each = var.dynamodb_read_arn_iam_list
     content {
     effect = "Allow"
     actions = [
@@ -137,7 +138,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.sqs_arn_iam_list 
+    for_each = var.sqs_arn_iam_list
     content {
     effect = "Allow"
     actions = [
@@ -149,7 +150,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.lambda_arn_iam_list 
+    for_each = var.lambda_arn_iam_list
     content {
     effect = "Allow"
     actions = [

@@ -9,6 +9,11 @@ variable "function_name" {}
 variable "description" {}
 
 ////////S3 Event Variables
+variable "tags" {
+  description = "A map of tags to assign to resources."
+  type        = map(string)
+  default     = {}
+}
 variable "enable_s3_event" {
     default = false
 }
