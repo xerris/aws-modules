@@ -12,7 +12,7 @@ resource "aws_cloudwatch_event_target" "target_night_clean" {
 
 
 module "lambda_ecr_cleaner"{
-  source = "github.com/xerris/aws-modules//lambda"
+  source = "../../lambda"
   function_name = "${var.env}-${var.function_name}"
   description = "Lambda function that removes the unused ecr images"
   handler       = "package.handler"
@@ -22,7 +22,7 @@ module "lambda_ecr_cleaner"{
   timeout = 120
   create_package = false
   create_role = false
-  local_existing_package = "package.zip"
+  local_existing_package = "${path.module}/package.zip"
 
   environment_variables = {
     IMAGES_TO_KEEP      = tonumber(var.images_to_keep)
