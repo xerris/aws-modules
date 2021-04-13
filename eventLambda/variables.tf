@@ -23,6 +23,9 @@ variable "timeout" {
 variable "memory_size" {
     default = 128
 }
+variable "reserved_concurrent_executions" {
+    default = -1
+}
 variable "bucket_event_arn" {
      default = null
 }
