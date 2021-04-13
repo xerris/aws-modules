@@ -6,6 +6,7 @@ resource "aws_lambda_function" "lambda_event" {
   function_name = var.function_name
   description   = var.description
   timeout       = var.timeout
+  reserved_concurrent_executions = var.reserved_concurrent_executions
   memory_size   = var.memory_size
   role          = aws_iam_role.iam_for_lambda.arn
   tags = var.tags
@@ -145,6 +146,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
       "sqs:ReceiveMessage",
       "sqs:GetQueueAttributes",
       "sqs:DeleteMessage",
+      "sqs:SendMessage"
     ]
     resources = [statement.value]
     }
