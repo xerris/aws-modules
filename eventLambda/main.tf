@@ -146,7 +146,8 @@ data "aws_iam_policy_document" "lambda_policy_document" {
       "sqs:ReceiveMessage",
       "sqs:GetQueueAttributes",
       "sqs:DeleteMessage",
-      "sqs:SendMessage"
+      "sqs:SendMessage",
+      "sqs:ChangeMessageVisibility"
     ]
     resources = [statement.value]
     }
