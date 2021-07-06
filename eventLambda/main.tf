@@ -181,7 +181,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
       "ses:SendEmail",
       "ses:SendRawEmail"
     ]
-    resources = [statement.value]
+    resources = ["*"]
     }
   }
 }
