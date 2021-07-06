@@ -173,6 +173,17 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = [statement.value]
     }
   }
+  dynamic "statement" {
+    for_each = var.ses_arn_iam_list 
+    content {
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail"
+    ]
+    resources = [statement.value]
+    }
+  }
 }
 resource "aws_iam_policy" "lambda_policy" {
   name   = "${var.function_name}-policy"
