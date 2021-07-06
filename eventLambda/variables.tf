@@ -60,8 +60,8 @@ variable "sqs_arn_iam_list" {
 variable "sns_arn_iam_list" {
     default = []
 }
-variable "ses_arn_iam_list" {
-    default = []
+variable "ses_enable" {
+    default = false
 }
 variable "dynamodb_readwrite_arn_iam_list" {
     default = []

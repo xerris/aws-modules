@@ -174,7 +174,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   statement {
-    effect = "Allow"
+    effect = var.ses_enable ? "Allow" : "Deny"
     actions = [
         "ses:SendEmail",
         "ses:SendRawEmail"
