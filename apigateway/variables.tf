@@ -45,12 +45,14 @@ variable "xray_tracing_enabled" {
   description = "To enable XRay"
 }
 
-variable "region" {
-  type = string
-  description = "Regions for the Lambda to authorize the API"
+variable "logs_retention" {
+  type = number
+  description = "Defines the number of days to retain logs"
+  default = 7
 }
 
-variable "account" {
+variable "access_log_format" {
   type = string
-  description = "Account for the Lambda to authorize the API"
+  description = "Access log format in Common Log Format (CLF)"
+  default = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength"
 }
