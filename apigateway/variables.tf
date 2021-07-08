@@ -44,3 +44,13 @@ variable "xray_tracing_enabled" {
   default     = false
   description = "To enable XRay"
 }
+
+variable "region" {
+  type = string
+  description = "Regions for the Lambda to authorize the API"
+}
+
+variable "account" {
+  type = string
+  description = "Account for the Lambda to authorize the API"
+}
