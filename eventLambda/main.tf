@@ -23,6 +23,13 @@ resource "aws_lambda_function" "lambda_event" {
     }
   }
 
+  dynamic "environment" {
+    for_each = length(var.environment_variables) > 0 ? [true] : []
+    content {
+      variables = var.environment_variables
+    }
+  }
+
   image_uri            = var.image
   package_type         = "Image"
 }
