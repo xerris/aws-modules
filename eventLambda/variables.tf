@@ -57,6 +57,12 @@ variable "s3_read_arn_iam_list" {
 variable "sqs_arn_iam_list" {
     default = []
 }
+variable "sns_arn_iam_list" {
+    default = []
+}
+variable "ses_enable" {
+    default = false
+}
 variable "dynamodb_readwrite_arn_iam_list" {
     default = []
 }

@@ -162,6 +162,25 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = [statement.value]
     }
   }
+  dynamic "statement" {
+    for_each = var.sns_arn_iam_list 
+    content {
+    effect = "Allow"
+    actions = [
+      "SNS:Subscribe",
+      "SNS:Publish"
+    ]
+    resources = [statement.value]
+    }
+  }
+  statement {
+    effect = var.ses_enable ? "Allow" : "Deny"
+    actions = [
+        "ses:SendEmail",
+        "ses:SendRawEmail"
+    ]
+    resources = ["*"]
+  }
 }
 resource "aws_iam_policy" "lambda_policy" {
   name   = "${var.function_name}-policy"
