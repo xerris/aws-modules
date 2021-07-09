@@ -44,3 +44,15 @@ variable "xray_tracing_enabled" {
   default     = false
   description = "To enable XRay"
 }
+
+variable "logs_retention" {
+  type = number
+  description = "Defines the number of days to retain logs"
+  default = 7
+}
+
+variable "access_log_format" {
+  type = string
+  description = "Access log format in Common Log Format (CLF)"
+  default = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength"
+}
