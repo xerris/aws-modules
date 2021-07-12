@@ -7,6 +7,11 @@ variable "env"{}
 variable "image" {}
 variable "function_name" {}
 variable "description" {}
+variable "environment_variables" {
+  description = "A map of environment variables to assign to this labmda resource."
+  type        = map(string)
+  default     = {}
+}
 
 ////////S3 Event Variables
 variable "tags" {
