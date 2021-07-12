@@ -80,3 +80,8 @@ variable "ok_actions" {
   default     = []
   description = "The list of actions to execute when this alarm transitions into an OK state from any other state."
 }
+
+variable "dimensions" {
+  default     = {}
+  description = "Dimensions for metrics."
+}
