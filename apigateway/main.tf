@@ -2,7 +2,7 @@ data "aws_caller_identity" "this" {}
 data "aws_region" "current" {}
 
 resource "aws_api_gateway_rest_api" "api-gw" {
-  name        = "${var.lambda_name}-apigw"
+  name        = var.apigateway_name
   description = "Terraform Serverless Application Example"
   tags        = var.tags
   endpoint_configuration {
@@ -62,13 +62,13 @@ resource "aws_api_gateway_deployment" "default" {
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  name = "/aws/apigateway/${var.lambda_name}"
+  name = "/aws/apigateway/${var.apigateway_name}"
   retention_in_days = var.logs_retention
   tags        = var.tags
 }
 
 resource "aws_iam_role" "role_for_api_gateway" {
-  name = "${var.lambda_name}-api-gateway-role"
+  name = "${var.apigateway_name}-api-gateway-role"
   description = "custom IAM Limited Role created with APIGateway as the trusted entity"
   path = "/"
 
@@ -92,7 +92,7 @@ EOF
 }
 
 resource "aws_iam_policy" "api_gateway_logging" {
-  name        = "${var.lambda_name}-api-gateway-logging"
+  name        = "${var.apigateway_name}-api-gateway-logging"
   path        = "/"
   description = "IAM policy for logging from the api gateway"
 
@@ -152,10 +152,12 @@ resource "aws_api_gateway_method_settings" "example" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  statement_id  = "AllowAPIGatewayInvoke"
+  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+
+  statement_id  = "AllowAPIGatewayInvoke-${element(var.resources_path_details, count.index).lambda_name}-${count.index}"
   action        = "lambda:InvokeFunction"
-  function_name = var.lambda_name
+  function_name = element(var.resources_path_details, count.index).lambda_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/*/*"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${element(var.resources_path_details, count.index).http_method}/${element(var.resources_path_details, count.index).resource_path}"
 }

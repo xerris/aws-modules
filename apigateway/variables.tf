@@ -4,7 +4,7 @@ variable "env" {
   default     = "dev"
 }
 
-variable "lambda_name" {
+variable "apigateway_name" {
   description = "A unique name for your Lambda Function"
   type        = string
   default     = ""
@@ -17,6 +17,7 @@ variable "resources_path_details" {
     http_method      = string
     integration_type = string
     integration_uri  = string
+    lambda_name      = string
     status_code      = string
   }))
 }
