@@ -265,3 +265,22 @@ resource "aws_lambda_permission" "allow_cloudwatch_invoke_lambda" {
     principal = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.schedule_lambda[count.index].arn
 }
+###############################################
+# SNS Event -> Lambda mapping
+###############################################
+
+resource "aws_lambda_permission" "sns" {
+  count         = var.enable_sns_event ? 1 : 0
+  action        = "lambda:InvokeFunction"
+  function_name = var.function_name
+  principal     = "sns.amazonaws.com"
+  statement_id  = "AllowSubscriptionToSNS"
+  source_arn    = var.sns_topic_arn
+}
+
+resource "aws_sns_topic_subscription" "sns_subscription" {
+  count     = var.enable_sns_event ? 1 : 0
+  endpoint  = aws_lambda_function.lambda_event.arn
+  protocol  = "lambda"
+  topic_arn = var.sns_topic_arn
+}

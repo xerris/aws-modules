@@ -88,3 +88,10 @@ variable "enable_chron" {
 variable "cron_expression" {
     default = null
 }
+////////SNS Event Variables
+variable "enable_sns_event" {
+    default = false
+}
+variable "sns_topic_arn" {
+     default = null
+}
