@@ -12,7 +12,7 @@ resource "aws_api_gateway_rest_api" "api-gw" {
 
 resource "aws_api_gateway_resource" "gw-resource" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   parent_id   = each.value.parent_resource == "root" ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"]
@@ -21,7 +21,7 @@ resource "aws_api_gateway_resource" "gw-resource" {
 
 resource "aws_api_gateway_method" "gw-method" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   rest_api_id   = aws_api_gateway_rest_api.api-gw.id
   resource_id   = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
@@ -31,7 +31,7 @@ resource "aws_api_gateway_method" "gw-method" {
 
 resource "aws_api_gateway_integration" "apigw-integration" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   rest_api_id             = aws_api_gateway_rest_api.api-gw.id
   resource_id             = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
@@ -44,7 +44,7 @@ resource "aws_api_gateway_integration" "apigw-integration" {
 
 resource "aws_api_gateway_method_response" "method-response" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   resource_id = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
@@ -54,7 +54,7 @@ resource "aws_api_gateway_method_response" "method-response" {
 
 resource "aws_api_gateway_integration_response" "integration-response" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   resource_id = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
@@ -159,7 +159,7 @@ resource "aws_api_gateway_method_settings" "example" {
 
 resource "aws_lambda_permission" "apigw" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs}
 
   statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${each.value.resource_path}"
   action        = "lambda:InvokeFunction"
