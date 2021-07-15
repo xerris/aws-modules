@@ -19,6 +19,7 @@ variable "resources_path_details" {
     integration_uri  = string
     lambda_name      = string
     status_code      = string
+    parent_resource  = string
   }))
 }
 

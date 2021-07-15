@@ -11,49 +11,55 @@ resource "aws_api_gateway_rest_api" "api-gw" {
 }
 
 resource "aws_api_gateway_resource" "gw-resource" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id
-  path_part   = element(var.resources_path_details, count.index).resource_path
+  parent_id   = each.value.parent_resource == "root" ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"]
+  path_part   = each.value.resource_path #element(var.resources_path_details, count.index).resource_path
 }
 
 resource "aws_api_gateway_method" "gw-method" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
   rest_api_id   = aws_api_gateway_rest_api.api-gw.id
-  resource_id   = aws_api_gateway_resource.gw-resource.*.id[count.index]
-  http_method   = element(var.resources_path_details, count.index).http_method
+  resource_id   = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  http_method   = each.value.http_method #element(var.resources_path_details, count.index).http_method
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "apigw-integration" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
   rest_api_id             = aws_api_gateway_rest_api.api-gw.id
-  resource_id             = aws_api_gateway_resource.gw-resource.*.id[count.index]
-  http_method             = aws_api_gateway_method.gw-method.*.http_method[count.index]
-  integration_http_method = element(var.resources_path_details, count.index).integration_type == "AWS_PROXY" ? "POST" : element(var.resources_path_details, count.index).http_method
-  type                    = element(var.resources_path_details, count.index).integration_type
-  uri                     = element(var.resources_path_details, count.index).integration_uri
+  resource_id             = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  http_method             = each.value.http_method  #aws_api_gateway_method.gw-method.*.http_method[count.index]
+  integration_http_method = each.value.integration_type == "AWS_PROXY" ? "POST" : each.value.http_method
+  #integration_http_method = element(var.resources_path_details, count.index).integration_type == "AWS_PROXY" ? "POST" : element(var.resources_path_details, count.index).http_method
+  type                    = each.value.integration_type #element(var.resources_path_details, count.index).integration_type
+  uri                     = each.value.integration_uri #element(var.resources_path_details, count.index).integration_uri
 }
 
 resource "aws_api_gateway_method_response" "method-response" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = aws_api_gateway_resource.gw-resource.*.id[count.index]
-  http_method = aws_api_gateway_method.gw-method.*.http_method[count.index]
-  status_code = element(var.resources_path_details, count.index).status_code
+  resource_id = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  http_method = each.value.http_method #aws_api_gateway_method.gw-method.*.http_method[count.index]
+  status_code = each.value.status_code #element(var.resources_path_details, count.index).status_code
 }
 
 resource "aws_api_gateway_integration_response" "integration-response" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = aws_api_gateway_resource.gw-resource.*.id[count.index]
-  http_method = aws_api_gateway_method.gw-method.*.http_method[count.index]
-  status_code = aws_api_gateway_method_response.method-response.*.status_code[count.index]
+  resource_id = aws_api_gateway_resource.gw-resource[each.value.resource_path] #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  http_method = each.value.http_method #aws_api_gateway_method.gw-method.*.http_method[count.index]
+  status_code = each.value.status_code #aws_api_gateway_method_response.method-response.*.status_code[count.index]
 }
 
 resource "aws_api_gateway_deployment" "default" {
@@ -152,12 +158,14 @@ resource "aws_api_gateway_method_settings" "example" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resources_path => rs}
 
-  statement_id  = "AllowAPIGatewayInvoke-${element(var.resources_path_details, count.index).lambda_name}-${count.index}"
+  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${each.value.resource_path}"
   action        = "lambda:InvokeFunction"
-  function_name = element(var.resources_path_details, count.index).lambda_name
+  function_name = each.value.lambda_name #element(var.resources_path_details, count.index).lambda_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${element(var.resources_path_details, count.index).http_method}/${element(var.resources_path_details, count.index).resource_path}"
+  #source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${element(var.resources_path_details, count.index).http_method}/${element(var.resources_path_details, count.index).resource_path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.resource_path}"
 }
