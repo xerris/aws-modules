@@ -10,11 +10,11 @@ variable "apigateway_name" {
   default     = ""
 }
 
-#variable "resources_path_details" {
-#  description = "Details for your api resources path and http methods"
-#  type        = any
-#  default     = {}
-#}
+variable "resources_path_details" {
+  description = "Details for your api resources path and http methods"
+  type        = any
+  default     = {}
+}
 
 #variable "resources_path_details" {
 #  type = map(object({
@@ -29,18 +29,18 @@ variable "apigateway_name" {
 #}
 
 
-variable "resources_path_details" {
-  description = "Details for your api resources path and http methods"
-  type = list(object({
-      resource_path    = string
-      http_method      = string
-      integration_type = string
-      integration_uri  = string
-      lambda_name      = string
-      status_code      = string
-      parent_resource  = string
-  }))
-}
+#variable "resources_path_details" {
+#  description = "Details for your api resources path and http methods"
+#  type = list(object({
+#      resource_path    = string
+#      http_method      = string
+#      integration_type = string
+#      integration_uri  = string
+#      lambda_name      = string
+#      status_code      = string
+#      parent_resource  = string
+#  }))
+#}
 
 variable "tags" {
   description = "A mapping of tags to assign to all resources"

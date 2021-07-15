@@ -12,7 +12,7 @@ resource "aws_api_gateway_rest_api" "api-gw" {
 
 resource "aws_api_gateway_resource" "gw-resource" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
+  for_each =  var.resources_path_details #{for rs in var.resources_path_details: rs.resource_path => rs }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   parent_id   = each.value.parent_resource == "root" ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"]
