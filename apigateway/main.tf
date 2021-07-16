@@ -161,7 +161,7 @@ resource "aws_lambda_permission" "apigw" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
   for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
 
-  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("\w",each.value.resource_path)}"
+  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}"
   action        = "lambda:InvokeFunction"
   function_name = each.value.lambda_name #element(var.resources_path_details, count.index).lambda_name
   principal     = "apigateway.amazonaws.com"
