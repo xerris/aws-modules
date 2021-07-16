@@ -13,13 +13,13 @@ variable "apigateway_name" {
 variable "resources_path_details" {
   description = "Details for your api resources path and http methods"
   type = list(object({
-      resource_path    = string
-      http_method      = string
-      integration_type = string
-      integration_uri  = string
-      lambda_name      = string
-      status_code      = string
-      parent_resource  = string
+    resource_path    = string
+    http_method      = string
+    integration_type = string
+    integration_uri  = string
+    lambda_name      = string
+    status_code      = string
+    parent_resource  = string
   }))
 }
 
@@ -48,13 +48,25 @@ variable "xray_tracing_enabled" {
 }
 
 variable "logs_retention" {
-  type = number
+  type        = number
   description = "Defines the number of days to retain logs"
-  default = 7
+  default     = 7
 }
 
 variable "access_log_format" {
-  type = string
+  type        = string
   description = "Access log format in Common Log Format (CLF)"
-  default = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength"
+  default     = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength"
+}
+
+variable "add_custom_auth" {
+  type        = bool
+  description = "Defines if custom auth should be added or not"
+  default     = false
+}
+
+variable "lambda_runtime" {
+  type        = string
+  description = "The name of the runtime, Ex. python2.7, python3.7, nodejs10.x"
+  default     = "nodejs10.x"
 }

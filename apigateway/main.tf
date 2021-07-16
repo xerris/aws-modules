@@ -32,7 +32,8 @@ resource "aws_api_gateway_method" "gw-method" {
   rest_api_id   = aws_api_gateway_rest_api.api-gw.id
   resource_id   = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
   http_method   = each.value.http_method
-  authorization = "NONE"
+  authorization = var.add_custom_auth ? "CUSTOM" : "NONE"
+  authorizer_id = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
 }
 
 resource "aws_api_gateway_integration" "apigw-integration" {
