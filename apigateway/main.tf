@@ -12,10 +12,19 @@ resource "aws_api_gateway_rest_api" "api-gw" {
 
 resource "aws_api_gateway_resource" "gw-resource" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each =  { for rs in var.resources_path_details: rs.resource_path => rs }
+  for_each =  { for rs in var.resources_path_details: rs.resource_path => rs if rs.parent_resource == "root" }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id #element(var.resources_path_details, count.index).parent_resource == null ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${element(var.resources_path_details, count.index).parent_resource}"]
+  parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id #each.value.parent_resource == "root" ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #element(var.resources_path_details, count.index).parent_resource == null ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${element(var.resources_path_details, count.index).parent_resource}"]
+  path_part   = each.value.resource_path #element(var.resources_path_details, count.index).resource_path
+}
+
+resource "aws_api_gateway_resource" "pathparam-resource" {
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each =  { for rs in var.resources_path_details: rs.resource_path => rs if rs.parent_resource != "root" }
+
+  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+  parent_id   = aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #each.value.parent_resource == "root" ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #element(var.resources_path_details, count.index).parent_resource == null ? aws_api_gateway_rest_api.api-gw.root_resource_id : aws_api_gateway_resource.gw-resource["${element(var.resources_path_details, count.index).parent_resource}"]
   path_part   = each.value.resource_path #element(var.resources_path_details, count.index).resource_path
 }
 
@@ -24,7 +33,7 @@ resource "aws_api_gateway_method" "gw-method" {
   for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
 
   rest_api_id   = aws_api_gateway_rest_api.api-gw.id
-  resource_id   = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  resource_id   = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
   http_method   = each.value.http_method #element(var.resources_path_details, count.index).http_method
   authorization = "NONE"
 }
@@ -34,7 +43,7 @@ resource "aws_api_gateway_integration" "apigw-integration" {
   for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
 
   rest_api_id             = aws_api_gateway_rest_api.api-gw.id
-  resource_id             = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  resource_id             = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
   http_method             = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method #each.value.http_method  #aws_api_gateway_method.gw-method.*.http_method[count.index]
   integration_http_method = each.value.integration_type == "AWS_PROXY" ? "POST" : each.value.http_method
   #integration_http_method = element(var.resources_path_details, count.index).integration_type == "AWS_PROXY" ? "POST" : element(var.resources_path_details, count.index).http_method
@@ -47,7 +56,7 @@ resource "aws_api_gateway_method_response" "method-response" {
   for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
   http_method = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method #each.value.http_method #aws_api_gateway_method.gw-method.*.http_method[count.index]
   status_code = each.value.status_code #element(var.resources_path_details, count.index).status_code
 }
@@ -57,7 +66,7 @@ resource "aws_api_gateway_integration_response" "integration-response" {
   for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
+  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id #aws_api_gateway_resource.gw-resource.*.id[count.index]
   http_method = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method #each.value.http_method #aws_api_gateway_method.gw-method.*.http_method[count.index]
   status_code = aws_api_gateway_method_response.method-response["${each.value.resource_path}"].status_code #each.value.status_code #aws_api_gateway_method_response.method-response.*.status_code[count.index]
 }
