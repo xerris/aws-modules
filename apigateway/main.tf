@@ -168,7 +168,7 @@ resource "aws_api_gateway_method_settings" "example" {
 
 resource "aws_lambda_permission" "apigw" {
   #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
-  for_each = {for rs in var.resources_path_details: rs.resource_path => rs }
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs if rs.parent_resource == "root" }
 
   statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}"
   action        = "lambda:InvokeFunction"
@@ -177,4 +177,17 @@ resource "aws_lambda_permission" "apigw" {
 
   #source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${element(var.resources_path_details, count.index).http_method}/${element(var.resources_path_details, count.index).resource_path}"
   source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.resource_path}"
+}
+
+resource "aws_lambda_permission" "apigw_pathparam" {
+  #count = length(var.resources_path_details) > 0 ? length(var.resources_path_details) : 0
+  for_each = {for rs in var.resources_path_details: rs.resource_path => rs if rs.parent_resource != "root" }
+
+  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}"
+  action        = "lambda:InvokeFunction"
+  function_name = each.value.lambda_name #element(var.resources_path_details, count.index).lambda_name
+  principal     = "apigateway.amazonaws.com"
+
+  #source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${element(var.resources_path_details, count.index).http_method}/${element(var.resources_path_details, count.index).resource_path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.parent_resource}/*"
 }
