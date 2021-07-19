@@ -70,3 +70,9 @@ variable "lambda_runtime" {
   description = "The name of the runtime, Ex. python2.7, python3.7, nodejs10.x"
   default     = "nodejs10.x"
 }
+
+variable "request_querystring_params" {
+  description = "A map of Query String Paramenter variables to assign to this Apigw resource."
+  type        = map(string)
+  default     = {}
+}

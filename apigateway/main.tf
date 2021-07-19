@@ -29,11 +29,12 @@ resource "aws_api_gateway_resource" "pathparam-resource" {
 resource "aws_api_gateway_method" "gw-method" {
   for_each = { for rs in var.resources_path_details : rs.resource_path => rs }
 
-  rest_api_id   = aws_api_gateway_rest_api.api-gw.id
-  resource_id   = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method   = each.value.http_method
-  authorization = var.add_custom_auth ? "CUSTOM" : "NONE"
-  authorizer_id = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
+  rest_api_id        = aws_api_gateway_rest_api.api-gw.id
+  resource_id        = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
+  http_method        = each.value.http_method
+  authorization      = var.add_custom_auth ? "CUSTOM" : "NONE"
+  authorizer_id      = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
+  request_parameters = length(var.request_querystring_params) > 0 ? var.request_querystring_params : null
 }
 
 resource "aws_api_gateway_integration" "apigw-integration" {
