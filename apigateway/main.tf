@@ -34,7 +34,7 @@ resource "aws_api_gateway_method" "gw-method" {
   http_method        = each.value.http_method
   authorization      = var.add_custom_auth ? "CUSTOM" : "NONE"
   authorizer_id      = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
-  request_parameters = length(var.request_querystring_params) > 0 ? var.request_querystring_params : null
+  request_parameters = length(each.value.request_querystring_params) > 0 ? each.value.request_querystring_params : null
 }
 
 resource "aws_api_gateway_integration" "apigw-integration" {

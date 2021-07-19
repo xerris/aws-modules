@@ -13,13 +13,14 @@ variable "apigateway_name" {
 variable "resources_path_details" {
   description = "Details for your api resources path and http methods"
   type = list(object({
-    resource_path    = string
-    http_method      = string
-    integration_type = string
-    integration_uri  = string
-    lambda_name      = string
-    status_code      = string
-    parent_resource  = string
+    resource_path              = string
+    http_method                = string
+    integration_type           = string
+    integration_uri            = string
+    lambda_name                = string
+    status_code                = string
+    parent_resource            = string
+    request_querystring_params = map(string)
   }))
 }
 
@@ -71,8 +72,8 @@ variable "lambda_runtime" {
   default     = "nodejs10.x"
 }
 
-variable "request_querystring_params" {
-  description = "A map of Query String Paramenter variables to assign to this Apigw resource."
-  type        = map(string)
-  default     = {}
-}
+#variable "request_querystring_params" {
+#  description = "A map of Query String Paramenter variables to assign to this Apigw resource."
+#  type        = map(string)
+#  default     = {}
+#}
