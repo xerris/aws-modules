@@ -129,6 +129,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
       "dynamodb:DeleteItem",
       "dynamodb:Query",
       "dynamodb:DescribeTable"
+      "dynamodb:Scan"
     ]
     resources = [statement.value]
     }
