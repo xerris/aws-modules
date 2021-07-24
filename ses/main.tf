@@ -1,14 +1,3 @@
-#locals {
-#  verified_identities = {
-#    "domain_record" = {
-#      name = "_amazonses"
-##      type = "TXT"
- #     ttl     = "600"
-#      records = [join("", aws_ses_domain_identity.ses_domain.*.verification_token)]
-#    }
-#  }
-#}
-
 resource "aws_ses_domain_identity" "ses_domain" {
   count  = var.verify_domain ? 1 : 0
   domain = var.domain
@@ -22,14 +11,6 @@ resource "aws_route53_record" "verification_record" {
   ttl     = "600"
   records = [join("", aws_ses_domain_identity.ses_domain.*.verification_token)]
 }
-
-#module "route53_module" {
-#  source = "github.com/xerris/aws-modules//route53/modules/records"
-##  create = true
-#  zone_id      = var.zone_id
-#  private_zone = var.private_zone
-#  records = local.verified_identities
-#}
 
 resource "aws_ses_domain_dkim" "ses_domain_dkim" {
   count  = var.route53_verify_dkim ? 1 : 0
