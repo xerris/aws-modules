@@ -31,20 +31,20 @@ resource "aws_route53_record" "verification_record" {
 #  records = local.verified_identities
 #}
 
-#resource "aws_ses_domain_dkim" "ses_domain_dkim" {
-#  count  = var.route53_verify_dkim ? 1 : 0
-#  domain = join("", aws_ses_domain_identity.ses_domain.*.domain)
-#}
+resource "aws_ses_domain_dkim" "ses_domain_dkim" {
+  count  = var.route53_verify_dkim ? 1 : 0
+  domain = join("", aws_ses_domain_identity.ses_domain.*.domain)
+}
 
-#resource "aws_route53_record" "amazonses_dkim_record" {
-#  count = var.verify_domain && var.route53_verify_dkim ? 3 : 0
+resource "aws_route53_record" "amazonses_dkim_record" {
+  count = var.verify_domain && var.route53_verify_dkim ? 3 : 0
 
-#  zone_id = var.zone_id
-#  name    = "${element(aws_ses_domain_dkim.ses_domain_dkim.0.dkim_tokens, count.index)}._domainkey.${var.domain}"
-#  type    = "CNAME"
-#  ttl     = "600"
-#  records = ["${element(aws_ses_domain_dkim.ses_domain_dkim.0.dkim_tokens, count.index)}.dkim.amazonses.com"]
-#}
+  zone_id = var.zone_id
+  name    = "${element(aws_ses_domain_dkim.ses_domain_dkim.0.dkim_tokens, count.index)}._domainkey.${var.domain}"
+  type    = "CNAME"
+  ttl     = "600"
+  records = ["${element(aws_ses_domain_dkim.ses_domain_dkim.0.dkim_tokens, count.index)}.dkim.amazonses.com"]
+}
 
 resource "aws_ses_email_identity" "email" {
   for_each = toset(var.email_addresses)
