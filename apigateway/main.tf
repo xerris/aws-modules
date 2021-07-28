@@ -167,6 +167,8 @@ resource "aws_api_gateway_method_settings" "example" {
     metrics_enabled    = true
     logging_level      = "INFO"
   }
+
+  depends_on = [aws_api_gateway_stage.default]
 }
 
 resource "aws_lambda_permission" "apigw" {
