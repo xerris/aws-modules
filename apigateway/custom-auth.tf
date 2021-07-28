@@ -86,9 +86,10 @@ EOF
 resource "aws_api_gateway_authorizer" "custom_auth" {
   count = var.add_custom_auth ? 1 : 0
 
-  name                   = "custom-auth"
-  rest_api_id            = aws_api_gateway_rest_api.api-gw.id
-  authorizer_uri         = aws_lambda_function.function_custom_auth[0].invoke_arn
-  authorizer_credentials = aws_iam_role.invocation_role[0].arn
-  identity_source        = "method.request.header.Authorization"
+  name                             = "custom-auth"
+  rest_api_id                      = aws_api_gateway_rest_api.api-gw.id
+  authorizer_uri                   = aws_lambda_function.function_custom_auth[0].invoke_arn
+  authorizer_credentials           = aws_iam_role.invocation_role[0].arn
+  identity_source                  = "method.request.header.Authorization"
+  authorizer_result_ttl_in_seconds = 0
 }
