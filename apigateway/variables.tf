@@ -10,18 +10,23 @@ variable "apigateway_name" {
   default     = ""
 }
 
+#variable "resources_path_details" {
+#  description = "Details for your api resources path and http methods"
+#  type = list(object({
+#    resource_path              = string
+#    http_method                = string
+#    integration_type           = string
+#    integration_uri            = string
+#    lambda_name                = string
+#    status_code                = string
+#    parent_resource            = string
+#    request_querystring_params = map(string)
+#  }))
+#}
+
 variable "resources_path_details" {
   description = "Details for your api resources path and http methods"
-  type = list(object({
-    resource_path              = string
-    http_method                = string
-    integration_type           = string
-    integration_uri            = string
-    lambda_name                = string
-    status_code                = string
-    parent_resource            = string
-    request_querystring_params = map(string)
-  }))
+  type = list(any)
 }
 
 variable "tags" {
