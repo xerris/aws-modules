@@ -20,7 +20,7 @@ resource "aws_lambda_function" "function_custom_auth" {
 resource "aws_iam_role" "lambda_exec" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw-custom-auth-role"
+  name = "apigw-custom-auth-role-${var.apigateway_name}-${var.env}"
 
   assume_role_policy = <<EOF
 {
@@ -43,7 +43,7 @@ EOF
 resource "aws_iam_role" "invocation_role" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw_custom_auth_invocation"
+  name = "apigw_custom_auth_invocation-${var.apigateway_name}-${var.env}"
   path = "/"
 
   assume_role_policy = <<EOF
@@ -66,7 +66,7 @@ EOF
 resource "aws_iam_role_policy" "invocation_policy" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw-custom-auth-invocation"
+  name = "apigw-custom-auth-invocation-${var.apigateway_name}-${var.env}"
   role = aws_iam_role.invocation_role[0].id
 
   policy = <<EOF
