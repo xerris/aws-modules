@@ -89,7 +89,7 @@ resource "aws_api_gateway_deployment" "default" {
   #depends_on  = [aws_api_gateway_method.gw-method, aws_api_gateway_integration.apigw-integration, aws_api_gateway_method_response.method-response]
 
   triggers = {
-    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api-gw))
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api-gw, aws_api_gateway_method.gw-method[*]))
   }
 
   lifecycle {
