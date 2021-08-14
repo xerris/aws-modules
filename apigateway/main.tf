@@ -87,6 +87,7 @@ resource "aws_api_gateway_integration_response" "integration-response" {
 resource "aws_api_gateway_deployment" "default" {
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   depends_on  = [aws_api_gateway_method.gw-method, aws_api_gateway_integration.apigw-integration, aws_api_gateway_method_response.method-response]
+  stage_name  = var.stage_name
 
   #triggers = {
   #  redeployment = sha1(jsonencode([aws_api_gateway_rest_api.api-gw, aws_api_gateway_method.gw-method[*].resource_id]))
