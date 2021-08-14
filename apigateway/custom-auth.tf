@@ -9,7 +9,7 @@ data "archive_file" "custom_auth_archived" {
 resource "aws_lambda_function" "function_custom_auth" {
   count = var.add_custom_auth ? 1 : 0
 
-  function_name    = "apigw-custom-auth"
+  function_name    = "apigw-custom-auth-${var.apigateway_name}-${var.env}"
   filename         = data.archive_file.custom_auth_archived[0].output_path
   source_code_hash = data.archive_file.custom_auth_archived[0].output_base64sha256
   handler          = "basic-custom-auth.handler"
