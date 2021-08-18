@@ -62,7 +62,7 @@ variable "logs_retention" {
 variable "access_log_format" {
   type        = string
   description = "Access log format in Common Log Format (CLF)"
-  default     = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength"
+  default     = "$context.requestId $context.identity.sourceIp $context.identity.userAgent $context.identity.caller $context.identity.user [$context.requestTime] $context.httpMethod $context.resourcePath $context.protocol $context.status $context.responseLength $context.awsEndpointRequestId $context.error.responseType $context.error.message "
 }
 
 variable "add_custom_auth" {
@@ -77,8 +77,14 @@ variable "lambda_runtime" {
   default     = "nodejs10.x"
 }
 
-#variable "request_querystring_params" {
-#  description = "A map of Query String Paramenter variables to assign to this Apigw resource."
-#  type        = map(string)
-#  default     = {}
-#}
+variable "apigw_enable_cache" {
+  type        = bool
+  description = "Enables or disables apigateway cache"
+  default     = false
+}
+
+variable "apigw_cache_size" {
+  type        = number
+  description = "The size of the cache for the stage, if enabled. "
+  default     = 0.5
+}
