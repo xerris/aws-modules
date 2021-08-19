@@ -87,7 +87,7 @@ module "apigateway-pet-restfulapi" {
         {
           id               = "1"
           http_method      = "POST"
-          integration_uri  = data.aws_lambda_function.pet.invoke_arn
+          integration_uri  = module.event-lambda.this_lambda_arn
           lambda_name      = "PostPetLicenseApplication"
           status_code      = "200"
           request_querystring_params = {}
@@ -95,7 +95,7 @@ module "apigateway-pet-restfulapi" {
         {
           id               = "2"
           http_method      = "GET"
-          integration_uri  = data.aws_lambda_function.list-petapp.invoke_arn
+          integration_uri  = module.event-lambda-list-petlicense-data.this_lambda_arn
           lambda_name      = "GetPetLicenseApplication"
           status_code      = "200"
           request_querystring_params = {}
@@ -103,7 +103,7 @@ module "apigateway-pet-restfulapi" {
         {
           id               = "3"
           http_method      = "DELETE"
-          integration_uri  = data.aws_lambda_function.delete-petapp.invoke_arn
+          integration_uri  = module.event-lambda-delete-petlicense-data.this_lambda_arn
           lambda_name      = "DeletePetLicenseApplication"
           status_code      = "200"
           request_querystring_params = {
@@ -121,7 +121,7 @@ module "apigateway-pet-restfulapi" {
         {
           id               = "4"
           http_method      = "GET"
-          integration_uri  = data.aws_lambda_function.list-petapp.invoke_arn
+          integration_uri  = module.event-lambda-list-petlicense-data.this_lambda_arn
           lambda_name      = "GetPetLicenseApplication"
           status_code      = "200"
           request_querystring_params = {}
@@ -136,7 +136,7 @@ module "apigateway-pet-restfulapi" {
         {
           id               = "5"
           http_method      = "GET"
-          integration_uri  = data.aws_lambda_function.search-petapp.invoke_arn
+          integration_uri  = module.event-lambda-search-petlicense-data.this_lambda_arn
           lambda_name      = "SearchPetLicenseApplication"
           status_code      = "200"
           request_querystring_params = {
@@ -147,7 +147,6 @@ module "apigateway-pet-restfulapi" {
       ]
     }
   ]
-
 
   tags = {
     Owner       = "DevOps Team"
