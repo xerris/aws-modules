@@ -15,22 +15,23 @@ module "apigateway-pet-restfulapi" {
   env                = var.env
   apigateway_name    = "ApplicationRestful"
   stage_name         = var.env
-  add_custom_auth    = false
-  apigw_enable_cache = false
+  add_custom_auth    = false                         # If custom auth should be enabled
+  apigw_enable_cache = false                         # If cache is enabled
+  apigw_cache_size   = 0.5                           # Cache size (0.5 Gb Default)
 
   resources_path_details = [
     {
       resource_path    = "PetApplication"            # Resource path part
       integration_type = "AWS_PROXY"
-      parent_resource  = "root"        # Under which resource this path part will be created
+      parent_resource  = "root"                      # Under which resource this path part will be created
       definitions      = [
         {
-          id               = "1"       # Unique id for the http method(s) associated
+          id               = "1"                     # Unique id for the http method(s) associated
           http_method      = "POST"
           integration_uri  = module.event-lambda.this_lambda_arn
           lambda_name      = "PostPetLicenseApplication"
           status_code      = "200"
-          request_querystring_params = {}       # A map of request parameters
+          request_querystring_params = {}            # A map of request parameters
         }
       ]
     }
