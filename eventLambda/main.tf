@@ -40,7 +40,7 @@ resource "aws_lambda_function" "lambda_event" {
 
 ##############Policies#########################
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_role_for_lambda-${var.function_name}-v1"
+  name = "iam_role_for_lambda-${var.function_name}"
 
   assume_role_policy = <<EOF
 {
