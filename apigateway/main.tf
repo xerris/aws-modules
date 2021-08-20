@@ -1,6 +1,24 @@
 data "aws_caller_identity" "this" {}
 data "aws_region" "current" {}
 
+locals {
+  resources_association = flatten([
+    for k, v in var.resources_path_details : [
+      for details_key, details_values in v.definitions : {
+        id                         = details_values.id
+        resource_path              = v.resource_path
+        integration_type           = v.integration_type
+        http_method                = details_values.http_method
+        integration_uri            = details_values.integration_uri
+        lambda_name                = details_values.lambda_name
+        status_code                = details_values.status_code
+        parent_resource            = v.parent_resource
+        request_querystring_params = details_values.request_querystring_params
+      }
+    ]
+  ])
+}
+
 resource "aws_api_gateway_rest_api" "api-gw" {
   name        = var.apigateway_name
   description = "Terraform Serverless Application Example"
