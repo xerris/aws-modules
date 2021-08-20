@@ -19,6 +19,8 @@ locals {
   ])
 }
 
+
+
 resource "aws_api_gateway_rest_api" "api-gw" {
   name        = var.apigateway_name
   description = "Terraform Serverless Application Example"
