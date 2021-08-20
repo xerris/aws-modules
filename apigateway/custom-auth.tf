@@ -9,7 +9,7 @@ data "archive_file" "custom_auth_archived" {
 resource "aws_lambda_function" "function_custom_auth" {
   count = var.add_custom_auth ? 1 : 0
 
-  function_name    = "apigw-custom-auth-${var.apigateway_name}-${var.env}"
+  function_name    = "apigw-custom-auth"
   filename         = data.archive_file.custom_auth_archived[0].output_path
   source_code_hash = data.archive_file.custom_auth_archived[0].output_base64sha256
   handler          = "basic-custom-auth.handler"
@@ -20,7 +20,7 @@ resource "aws_lambda_function" "function_custom_auth" {
 resource "aws_iam_role" "lambda_exec" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw-custom-auth-role-${var.apigateway_name}-${var.env}"
+  name = "apigw-custom-auth-role"
 
   assume_role_policy = <<EOF
 {
@@ -43,7 +43,7 @@ EOF
 resource "aws_iam_role" "invocation_role" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw_custom_auth_invocation-${var.apigateway_name}-${var.env}"
+  name = "apigw_custom_auth_invocation"
   path = "/"
 
   assume_role_policy = <<EOF
@@ -66,7 +66,7 @@ EOF
 resource "aws_iam_role_policy" "invocation_policy" {
   count = var.add_custom_auth ? 1 : 0
 
-  name = "apigw-custom-auth-invocation-${var.apigateway_name}-${var.env}"
+  name = "apigw-custom-auth-invocation"
   role = aws_iam_role.invocation_role[0].id
 
   policy = <<EOF
