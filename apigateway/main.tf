@@ -1,6 +1,7 @@
 data "aws_caller_identity" "this" {}
 data "aws_region" "current" {}
 
+
 locals {
   resources_association = flatten([
     for k, v in var.resources_path_details : [

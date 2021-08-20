@@ -1,7 +1,7 @@
 # AWS Api Gateway module for lambda proxy integration
 
 This module is designed to create an api gateway with lambda proxy integration, it includes the creation of the resources and the required http methods associated; it supports query strings parameters, request path parameters, custom authorizer, cache cluster for stage and logging to cloudwatch logs all request access to the apigateway.
-
+---
 ---
 
 ## Usage
