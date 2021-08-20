@@ -1,9 +1,27 @@
 data "aws_caller_identity" "this" {}
 data "aws_region" "current" {}
 
+locals {
+  resources_association = flatten([
+    for k, v in var.resources_path_details : [
+      for details_key, details_values in v.definitions : {
+        id                         = details_values.id
+        resource_path              = v.resource_path
+        integration_type           = v.integration_type
+        http_method                = details_values.http_method
+        integration_uri            = details_values.integration_uri
+        lambda_name                = details_values.lambda_name
+        status_code                = details_values.status_code
+        parent_resource            = v.parent_resource
+        request_querystring_params = details_values.request_querystring_params
+      }
+    ]
+  ])
+}
+
 resource "aws_api_gateway_rest_api" "api-gw" {
   name        = var.apigateway_name
-  description = "Terraform Serverless Application Example"
+  description = "Terraform Api Gateway"
   tags        = var.tags
   endpoint_configuration {
     types = var.endpoint_configuration_types
@@ -15,7 +33,7 @@ resource "aws_api_gateway_resource" "gw-resource" {
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id
-  path_part   = each.value.resource_path
+  path_part   = each.key
 }
 
 resource "aws_api_gateway_resource" "pathparam-resource" {
@@ -23,11 +41,11 @@ resource "aws_api_gateway_resource" "pathparam-resource" {
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   parent_id   = aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id
-  path_part   = each.value.resource_path
+  path_part   = each.key
 }
 
 resource "aws_api_gateway_method" "gw-method" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs }
+  for_each = { for rs in local.resources_association : rs.id => rs }
 
   rest_api_id        = aws_api_gateway_rest_api.api-gw.id
   resource_id        = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
@@ -38,32 +56,32 @@ resource "aws_api_gateway_method" "gw-method" {
 }
 
 resource "aws_api_gateway_integration" "apigw-integration" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs }
+  for_each = { for rs in local.resources_association : rs.id => rs }
 
   rest_api_id             = aws_api_gateway_rest_api.api-gw.id
   resource_id             = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method             = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method
+  http_method             = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
   integration_http_method = each.value.integration_type == "AWS_PROXY" ? "POST" : each.value.http_method
   type                    = each.value.integration_type
   uri                     = each.value.integration_uri
 }
 
 resource "aws_api_gateway_method_response" "method-response" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs }
+  for_each = { for rs in local.resources_association : rs.id => rs }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method
+  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
   status_code = each.value.status_code
 }
 
 resource "aws_api_gateway_integration_response" "integration-response" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs }
+  for_each = { for rs in local.resources_association : rs.id => rs }
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method = aws_api_gateway_method.gw-method["${each.value.resource_path}"].http_method
-  status_code = aws_api_gateway_method_response.method-response["${each.value.resource_path}"].status_code
+  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
+  status_code = aws_api_gateway_method_response.method-response["${each.value.id}"].status_code
 }
 
 resource "aws_api_gateway_deployment" "default" {
@@ -71,7 +89,7 @@ resource "aws_api_gateway_deployment" "default" {
   depends_on  = [aws_api_gateway_method.gw-method, aws_api_gateway_integration.apigw-integration, aws_api_gateway_method_response.method-response]
   
   triggers = {
-    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api-gw))
+    redeployment = timestamp()
   }
 
   lifecycle {
@@ -172,9 +190,9 @@ resource "aws_api_gateway_method_settings" "example" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource == "root" }
+  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource == "root" }
 
-  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}"
+  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
   action        = "lambda:InvokeFunction"
   function_name = each.value.lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -183,9 +201,9 @@ resource "aws_lambda_permission" "apigw" {
 }
 
 resource "aws_lambda_permission" "apigw_pathparam" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource != "root" }
+  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource != "root" }
 
-  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}"
+  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
   action        = "lambda:InvokeFunction"
   function_name = each.value.lambda_name
   principal     = "apigateway.amazonaws.com"
