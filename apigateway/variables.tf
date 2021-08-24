@@ -12,7 +12,7 @@ variable "apigateway_name" {
 
 variable "resources_path_details" {
   description = "Details for your api resources path and http methods"
-  type = list(any)
+  type = any
 }
 
 variable "tags" {

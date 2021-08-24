@@ -4,17 +4,16 @@ data "aws_region" "current" {}
 locals {
   resources_association = flatten([
     for k, v in var.resources_path_details : [
-      for details_key, details_values in v.definitions : {
-        id                         = details_values.id
-        resource_path              = v.resource_path
-        integration_type           = v.integration_type
-        http_method                = details_values.http_method
-        integration_uri            = details_values.integration_uri
-        lambda_name                = details_values.lambda_name
-        status_code                = details_values.status_code
-        parent_resource            = v.parent_resource
-        request_querystring_params = details_values.request_querystring_params
-      }
+      #resource_path = k
+      #definitions   = [
+        for details_key, details_values in v : {
+          resource_path              = k
+          http_method                = details_key
+          integration_type           = details_values.lambda_details.type
+          integration_uri            = details_values.lambda_details.uri
+          lambda_name                = details_values.lambda_details.lambda_name
+        }
+      #]
     ]
   ])
 }
@@ -26,70 +25,77 @@ resource "aws_api_gateway_rest_api" "api-gw" {
   endpoint_configuration {
     types = var.endpoint_configuration_types
   }
+  
+  body = jsonencode(
+    templatefile("${path.module}/openapi.tpl",{
+      config  = var.resources_path_details,
+      apiname = var.apigateway_name
+      })
+  )
+  
 }
 
-resource "aws_api_gateway_resource" "gw-resource" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource == "root" }
-
-  rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id
-  path_part   = each.key
-}
-
-resource "aws_api_gateway_resource" "pathparam-resource" {
-  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource != "root" }
-
-  rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  parent_id   = aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id
-  path_part   = each.key
-}
-
-resource "aws_api_gateway_method" "gw-method" {
-  for_each = { for rs in local.resources_association : rs.id => rs }
-
-  rest_api_id        = aws_api_gateway_rest_api.api-gw.id
-  resource_id        = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method        = each.value.http_method
-  authorization      = var.add_custom_auth ? "CUSTOM" : "NONE"
-  authorizer_id      = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
-  request_parameters = length(each.value.request_querystring_params) > 0 ? each.value.request_querystring_params : null
-}
-
-resource "aws_api_gateway_integration" "apigw-integration" {
-  for_each = { for rs in local.resources_association : rs.id => rs }
-
-  rest_api_id             = aws_api_gateway_rest_api.api-gw.id
-  resource_id             = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method             = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
-  integration_http_method = each.value.integration_type == "AWS_PROXY" ? "POST" : each.value.http_method
-  type                    = each.value.integration_type
-  uri                     = each.value.integration_uri
-}
-
-resource "aws_api_gateway_method_response" "method-response" {
-  for_each = { for rs in local.resources_association : rs.id => rs }
-
-  rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
-  status_code = each.value.status_code
-}
-
-resource "aws_api_gateway_integration_response" "integration-response" {
-  for_each = { for rs in local.resources_association : rs.id => rs }
-
-  rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
-  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
-  status_code = aws_api_gateway_method_response.method-response["${each.value.id}"].status_code
-}
-
+#resource "aws_api_gateway_resource" "gw-resource" {
+#  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource == "root" }
+#
+#  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+#  parent_id   = aws_api_gateway_rest_api.api-gw.root_resource_id
+#  path_part   = each.key
+#}
+#
+#resource "aws_api_gateway_resource" "pathparam-resource" {
+#  for_each = { for rs in var.resources_path_details : rs.resource_path => rs if rs.parent_resource != "root" }
+#
+#  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+#  parent_id   = aws_api_gateway_resource.gw-resource["${each.value.parent_resource}"].id
+#  path_part   = each.key
+#}
+#
+#resource "aws_api_gateway_method" "gw-method" {
+#  for_each = { for rs in local.resources_association : rs.id => rs }
+#
+#  rest_api_id        = aws_api_gateway_rest_api.api-gw.id
+#  resource_id        = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
+#  http_method        = each.value.http_method
+#  authorization      = var.add_custom_auth ? "CUSTOM" : "NONE"
+#  authorizer_id      = var.add_custom_auth ? aws_api_gateway_authorizer.custom_auth[0].id : null
+#  request_parameters = length(each.value.request_querystring_params) > 0 ? each.value.request_querystring_params : null
+#}
+#
+#resource "aws_api_gateway_integration" "apigw-integration" {
+#  for_each = { for rs in local.resources_association : rs.id => rs }
+#
+#  rest_api_id             = aws_api_gateway_rest_api.api-gw.id
+#  resource_id             = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
+#  http_method             = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
+#  integration_http_method = each.value.integration_type == "AWS_PROXY" ? "POST" : each.value.http_method
+#  type                    = each.value.integration_type
+#  uri                     = each.value.integration_uri
+#}
+#
+#resource "aws_api_gateway_method_response" "method-response" {
+#  for_each = { for rs in local.resources_association : rs.id => rs }
+#
+#  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+#  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
+#  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
+#  status_code = each.value.status_code
+#}
+#
+#resource "aws_api_gateway_integration_response" "integration-response" {
+#  for_each = { for rs in local.resources_association : rs.id => rs }
+#
+#  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+#  resource_id = each.value.parent_resource == "root" ? aws_api_gateway_resource.gw-resource["${each.value.resource_path}"].id : aws_api_gateway_resource.pathparam-resource["${each.value.resource_path}"].id
+#  http_method = aws_api_gateway_method.gw-method["${each.value.id}"].http_method
+#  status_code = aws_api_gateway_method_response.method-response["${each.value.id}"].status_code
+#}
+#
 resource "aws_api_gateway_deployment" "default" {
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  depends_on  = [aws_api_gateway_method.gw-method, aws_api_gateway_integration.apigw-integration, aws_api_gateway_method_response.method-response]
   
   triggers = {
-    redeployment = timestamp()
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api-gw.body))
   }
 
   lifecycle {
@@ -190,7 +196,7 @@ resource "aws_api_gateway_method_settings" "example" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource == "root" }
+  for_each = { for rs in local.resources_association : rs.resource_path => rs }
 
   statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
   action        = "lambda:InvokeFunction"
@@ -200,13 +206,13 @@ resource "aws_lambda_permission" "apigw" {
   source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.resource_path}"
 }
 
-resource "aws_lambda_permission" "apigw_pathparam" {
-  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource != "root" }
-
-  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
-  action        = "lambda:InvokeFunction"
-  function_name = each.value.lambda_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.parent_resource}/*"
-}
+#resource "aws_lambda_permission" "apigw_pathparam" {
+#  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource != "root" }
+#
+#  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
+#  action        = "lambda:InvokeFunction"
+#  function_name = each.value.lambda_name
+#  principal     = "apigateway.amazonaws.com"
+#
+#  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.parent_resource}/*"
+#}
