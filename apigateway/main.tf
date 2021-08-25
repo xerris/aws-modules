@@ -26,12 +26,7 @@ resource "aws_api_gateway_rest_api" "api-gw" {
     types = var.endpoint_configuration_types
   }
   
-  body = jsonencode(
-    templatefile("${path.module}/openapi.tpl",{
-      config  = var.resources_path_details,
-      apiname = var.apigateway_name
-      })
-  )
+  body = file("${path.module}/openapi.json")
   
 }
 
@@ -195,16 +190,16 @@ resource "aws_api_gateway_method_settings" "example" {
   depends_on = [aws_api_gateway_stage.default]
 }
 
-resource "aws_lambda_permission" "apigw" {
-  for_each = { for rs in local.resources_association : rs.resource_path => rs }
-
-  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
-  action        = "lambda:InvokeFunction"
-  function_name = each.value.lambda_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.resource_path}"
-}
+#resource "aws_lambda_permission" "apigw" {
+#  for_each = { for rs in local.resources_association : rs.resource_path => rs }
+#
+#  statement_id  = "AllowAPIGatewayInvoke-${each.value.lambda_name}-${regex("[0-9A-Za-z]+", each.value.resource_path)}-${each.value.http_method}"
+#  action        = "lambda:InvokeFunction"
+#  function_name = each.value.lambda_name
+#  principal     = "apigateway.amazonaws.com"
+#
+#  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.this.account_id}:${aws_api_gateway_rest_api.api-gw.id}/*/${each.value.http_method}/${each.value.resource_path}"
+#}
 
 #resource "aws_lambda_permission" "apigw_pathparam" {
 #  for_each = { for rs in local.resources_association : rs.id => rs if rs.parent_resource != "root" }

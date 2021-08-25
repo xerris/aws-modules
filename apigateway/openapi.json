@@ -1,0 +1,146 @@
+{
+    "openapi" : "3.0.1",
+    "info" : {
+      "title"   : "my-gateway",
+      "version" : "1.0"
+    },
+    "paths" : {
+      "/PetApplication" : {
+        "post" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:PostPetLicenseApplication/invocations"
+          }
+        },
+        "get" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:GetPetLicenseApplication/invocations"
+          },
+          "parameters" : []
+        },
+        "delete" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:DeletePetLicenseApplication/invocations"
+          },
+          "parameters": [
+             {
+               "name": "id",
+               "in": "query",
+               "required": true,
+               "schema": {
+                 "type": "string"
+               }
+             },
+             {
+               "name": "dateApplied",
+               "in": "query",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             },
+             {
+               "name": "test",
+               "in": "query",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             }
+           ]
+        }
+      },
+      "/PetApplication/{dateapplied}" : {
+        "get" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:GetPetLicenseApplication/invocations"
+          },
+          "parameters": [
+             {
+               "name": "dateapplied",
+               "in": "path",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             },
+             {
+               "name": "test",
+               "in": "path",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             }
+           ]
+          }
+        },
+        "/SearchPetLicenseApplication" : {
+        "get" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:GetPetLicenseApplication/invocations"
+          },
+          "parameters": [
+             {
+               "name": "id",
+               "in": "query",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             },
+             {
+               "name": "dateApplied",
+               "in": "query",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             }
+           ]
+          }
+        },
+        "/PetApplication/{dateapplied}/{streetname}" : {
+        "get" : {
+          "x-amazon-apigateway-integration" : {
+            "httpMethod"           : "POST",
+            "payloadFormatVersion" : "1.0",
+            "type"                 : "AWS_PROXY",
+            "uri"                  : "arn:aws:apigateway:ca-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ca-central-1:859139628251:function:GetPetLicenseApplication/invocations"
+          },
+          "parameters": [
+             {
+               "name": "dateapplied",
+               "in": "path",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             },
+             {
+               "name": "streetname",
+               "in": "path",
+               "required": "true",
+               "schema": {
+                 "type": "string"
+               }
+             }
+           ]
+          }
+        }
+    }
+  }
