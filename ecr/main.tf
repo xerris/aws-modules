@@ -5,11 +5,7 @@ module "ecr" {
   scan_on_push         = true
   timeouts_delete      = "60m"
   # Tags
-  tags = {
-    Owner       = var.owner_tag
-    Environment = var.env_tag
-    Terraform   = true
-  }
+  tags = var.tags
 
    policy = <<EOF
 {

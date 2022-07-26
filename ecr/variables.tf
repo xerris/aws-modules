@@ -13,3 +13,8 @@ variable "ecr_name" {
 variable "region" {
   default = "us-east-1"
 }
+
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(any)
+}
