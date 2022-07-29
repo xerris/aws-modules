@@ -53,6 +53,15 @@ variable "vpc_security_group_ids" {
         default = null
 }
 ///////IAM Variables
+variable "kafka_group_readwrite_arn_iam_list" {
+    default = []
+}
+variable "kafka_topic_readwrite_arn_iam_list" {
+    default = []
+}
+variable "kafka_cluster_read_arn_iam_list" {
+    default = []
+}
 variable "s3_readwrite_arn_iam_list" {
     default = []
 }

@@ -78,6 +78,49 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = ["*"]
   }
   dynamic "statement" {
+    for_each = var.kafka_group_readwrite_arn_iam_list
+    content {
+        effect = "Allow"
+        actions = [
+        "kafka-cluster:AlterGroup",
+        "kafka-cluster:DescribeGroup"
+        ]
+        resources = [
+        statement.value,
+        "${statement.value}/*",
+        ]
+    }
+  }
+  dynamic "statement" {
+    for_each = var.kafka_topic_readwrite_arn_iam_list
+    content {
+        effect = "Allow"
+        actions = [
+        "kafka-cluster:*Topic*",
+        "kafka-cluster:WriteData",
+        "kafka-cluster:ReadData"
+        ]
+        resources = [
+        statement.value,
+        "${statement.value}/*",
+        ]
+    }
+  }
+  dynamic "statement" {
+    for_each = var.kafka_cluster_read_arn_iam_list
+    content {
+        effect = "Allow"
+        actions = [
+        "kafka-cluster:Connect",
+        "kafka-cluster:DescribeCluster"
+        ]
+        resources = [
+        statement.value,
+        "${statement.value}/*",
+        ]
+    }
+  }
+  dynamic "statement" {
     for_each = var.s3_readwrite_arn_iam_list
     content {
         effect = "Allow"
@@ -171,7 +214,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     }
   }
   dynamic "statement" {
-    for_each = var.sns_arn_iam_list 
+    for_each = var.sns_arn_iam_list
     content {
     effect = "Allow"
     actions = [
