@@ -19,6 +19,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+variable "enable_msk" {
+    default = false
+}
 variable "enable_s3_event" {
     default = false
 }
