@@ -250,7 +250,7 @@ resource "aws_iam_policy_attachment" "lambda_attachment2" {
   count = var.kafka_cluster_read_arn_iam_list ? 1 : 0
   name       = "${var.function_name}-attachment2"
   roles       = [aws_iam_role.iam_for_lambda.name]
-  policy_arn = arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole
+  policy_arn =  "arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole"
 }
 
 ###############################################
