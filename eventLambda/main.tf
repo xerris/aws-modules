@@ -283,7 +283,7 @@ resource "aws_lambda_event_source_mapping" "event_mapping" {
   batch_size       = var.event_batch_size
   topics           = var.event_topics
   starting_position = var.event_starting_position
-  depends_on = [ aws_lambda_function.lambda_event ]
+  depends_on = [ aws_lambda_function.lambda_event, aws_iam_policy.lambda_policy ]
 }
 ###############################################
 # Cloudwatch Cron Enabled
