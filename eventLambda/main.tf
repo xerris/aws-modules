@@ -280,7 +280,8 @@ resource "aws_lambda_event_source_mapping" "event_mapping" {
   event_source_arn = var.event_arn
   enabled          = true
   function_name    = var.function_name
-  batch_size       = 1
+  batch_size       = var.event_batch_size
+  topics           = var.event_topics
   depends_on = [ aws_lambda_function.lambda_event ]
 }
 ###############################################

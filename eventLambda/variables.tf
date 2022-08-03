@@ -45,6 +45,13 @@ variable "event_arn" {
      default = null
 }
 
+variable "event_batch_size"{
+    default = 0
+}
+
+variable "event_topic"{
+    default = null
+}
 ////////Private Networking Variables
 variable "subnet_ids" {
         default = null
