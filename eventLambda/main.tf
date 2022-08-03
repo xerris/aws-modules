@@ -275,9 +275,9 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 # Event -> Lambda mapping
 ###############################################
 
-resource "aws_lambda_event_source_mapping" "queue_event_mapping" {
-  count = var.enable_sqs_event ? 1 : 0
-  event_source_arn = var.sqs_event_arn
+resource "aws_lambda_event_source_mapping" "event_mapping" {
+  count = var.enable_event ? 1 : 0
+  event_source_arn = var.event_arn
   enabled          = true
   function_name    = var.function_name
   batch_size       = 1
