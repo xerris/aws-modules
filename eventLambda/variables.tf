@@ -49,9 +49,14 @@ variable "event_batch_size"{
     default = 0
 }
 
-variable "event_topic"{
+variable "event_topics"{
+    default = []
+}
+
+variable "event_starting_position"{
     default = null
 }
+
 ////////Private Networking Variables
 variable "subnet_ids" {
         default = null

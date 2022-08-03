@@ -282,6 +282,7 @@ resource "aws_lambda_event_source_mapping" "event_mapping" {
   function_name    = var.function_name
   batch_size       = var.event_batch_size
   topics           = var.event_topics
+  starting_position = var.evet_starting_position
   depends_on = [ aws_lambda_function.lambda_event ]
 }
 ###############################################
