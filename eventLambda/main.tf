@@ -243,15 +243,9 @@ resource "aws_iam_policy" "lambda_policy" {
 resource "aws_iam_policy_attachment" "lambda_attachment" {
   name       = "${var.function_name}-attachment"
   roles       = [aws_iam_role.iam_for_lambda.name]
-  policy_arn = aws_iam_policy.lambda_policy.arn
+  policy_arn =  var.enable_msk ? ["arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole", aws_iam_policy.lambda_policy.arn] : aws_iam_policy.lambda_policy.arn
 }
 
-resource "aws_iam_policy_attachment" "lambda_attachment2" {
-  count = var.enable_msk ? 1 : 0
-  name       = "${var.function_name}-attachment2"
-  roles       = [aws_iam_role.iam_for_lambda.name]
-  policy_arn =  "arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole"
-}
 
 ###############################################
 # S3 Event
