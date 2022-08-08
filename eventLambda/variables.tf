@@ -20,7 +20,7 @@ variable "tags" {
   default     = {}
 }
 variable "enable_msk" {
-    default = 0
+    default = []
 }
 variable "enable_s3_event" {
     default = false
