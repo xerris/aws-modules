@@ -232,6 +232,27 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     ]
     resources = ["*"]
   }
+  dynamic "statement" {
+    for_each = var.enable_msk
+    content {
+    effect = "Allow"
+    actions = [
+      "kafka:DescribeCluster",
+      "kafka:DescribeClusterV2",
+      "kafka:GetBootstrapBrokers",
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeVpcs",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeSecurityGroups",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+    }
+  }
 }
 resource "aws_iam_policy" "lambda_policy" {
   name   = "${var.function_name}-policy"
@@ -244,13 +265,6 @@ resource "aws_iam_policy_attachment" "lambda_attachment" {
   name       = "${var.function_name}-attachment"
   roles       = [aws_iam_role.iam_for_lambda.name]
   policy_arn = aws_iam_policy.lambda_policy.arn
-}
-
-resource "aws_iam_policy_attachment" "lambda_attachment2" {
-  count = var.enable_msk ? 1 : 0
-  name       = "${var.function_name}-attachment2"
-  roles       = [aws_iam_role.iam_for_lambda.name]
-  policy_arn =  "arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole"
 }
 
 ###############################################
