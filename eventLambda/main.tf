@@ -293,6 +293,19 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_lambda_permission.allow_bucket]
 }
 ###############################################
+# Event -> Lambda mapping (OLD-IMPLEMENTATION)
+###############################################
+
+resource "aws_lambda_event_source_mapping" "queue_event_mapping" {
+  count = var.enable_sqs_event ? 1 : 0
+  event_source_arn = var.sqs_event_arn
+  enabled          = true
+  function_name    = var.function_name
+  batch_size       = 1
+  depends_on = [ aws_lambda_function.lambda_event, aws_iam_policy.lambda_policy ]
+}
+
+###############################################
 # Event -> Lambda mapping
 ###############################################
 

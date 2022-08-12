@@ -41,6 +41,12 @@ variable "bucket_event_id" {
      default = null
 }
 ////////SQS Event Variables
+variable "enable_sqs_event" {
+    default = false
+}
+variable "sqs_event_arn" {
+     default = null
+}
 variable "enable_event" {
     default = false
 }
