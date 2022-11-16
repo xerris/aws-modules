@@ -8,7 +8,7 @@ resource "aws_lambda_function" "lambda_event" {
   timeout       = var.timeout
   reserved_concurrent_executions = var.reserved_concurrent_executions
   memory_size   = var.memory_size
-  role          = aws_iam_role.iam_for_lambda.arn
+  role          =  var.create_lambda_role ? aws_iam_role.iam_for_lambda[0].arn : var.lambda_role_arn
   tags = var.tags
 
   image_config  {
@@ -40,6 +40,7 @@ resource "aws_lambda_function" "lambda_event" {
 
 ##############Policies#########################
 resource "aws_iam_role" "iam_for_lambda" {
+  count = var.create_lambda_role ? 1: 0
   name = "iam_role_for_lambda-${var.function_name}"
 
   assume_role_policy = <<EOF
@@ -255,6 +256,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
   }
 }
 resource "aws_iam_policy" "lambda_policy" {
+  count = var.create_lambda_role ? 1: 0
   name   = "${var.function_name}-policy"
   policy = data.aws_iam_policy_document.lambda_policy_document.json
 }
@@ -262,9 +264,10 @@ resource "aws_iam_policy" "lambda_policy" {
 
 ##############Policy attchment#########################
 resource "aws_iam_policy_attachment" "lambda_attachment" {
+  count = var.create_lambda_role ? 1: 0
   name       = "${var.function_name}-attachment"
-  roles       = [aws_iam_role.iam_for_lambda.name]
-  policy_arn = aws_iam_policy.lambda_policy.arn
+  roles       = [aws_iam_role.iam_for_lambda[0].name]
+  policy_arn = aws_iam_policy.lambda_policy[0].arn
 }
 
 ###############################################

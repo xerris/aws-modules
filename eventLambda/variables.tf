@@ -13,6 +13,16 @@ variable "environment_variables" {
   default     = {}
 }
 
+variable "create_lambda_role" {
+  default = true
+  description = "Flag use to indicate if the module should create a role or use already created role"
+}
+
+variable "lambda_role_arn" {
+  description = "A role that will be used for the creation of lambda. To use this; create_lambda_role flag must be false"
+  default = ""
+}
+
 ////////S3 Event Variables
 variable "tags" {
   description = "A map of tags to assign to resources."
